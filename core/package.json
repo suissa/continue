@@ -66,7 +66,7 @@
     "@continuedev/openai-adapters": "file:../packages/openai-adapters",
     "@continuedev/terminal-security": "file:../packages/terminal-security",
     "@modelcontextprotocol/sdk": "^1.25.2",
-    "@mozilla/readability": "^0.5.0",
+    "@mozilla/readability": "^0.6.0",
     "@octokit/rest": "^20.1.1",
     "@sentry/cli": "^2.50.2",
     "@sentry/core": "^9.43.0",
