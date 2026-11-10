@@ -1,4 +1,4 @@
-import { configYamlSchema } from "./index.js";
+import { configYamlSchema } from "./schemas/index.js";
 
 describe("capability routing schema", () => {
   it("accepts independent model routes and applies bidirectional fallback defaults", () => {
