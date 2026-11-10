@@ -17,7 +17,10 @@ export interface CapabilityRoutingConfig {
   retryOn?: ("unavailable" | "timeout" | "rate-limit" | "server-error")[];
 }
 
-function findConfiguredModel(models: ILLM[], identifier: string): ILLM | undefined {
+function findConfiguredModel(
+  models: ILLM[],
+  identifier: string,
+): ILLM | undefined {
   return models.find(
     (model) => model.title === identifier || model.model === identifier,
   );
@@ -99,22 +102,25 @@ export function isRetryableCapabilityError(
   const status = value.status ?? value.statusCode ?? value.response?.status;
   const code = value.code ?? "";
 
-  if (
-    retryOn.includes("rate-limit") &&
-    status === 429
-  ) return true;
+  if (retryOn.includes("rate-limit") && status === 429) return true;
   if (
     retryOn.includes("server-error") &&
     typeof status === "number" &&
     status >= 500
-  ) return true;
+  ) {
+    return true;
+  }
   if (
     retryOn.includes("timeout") &&
     ["ETIMEDOUT", "ECONNABORTED", "UND_ERR_CONNECT_TIMEOUT"].includes(code)
-  ) return true;
+  ) {
+    return true;
+  }
   if (
     retryOn.includes("unavailable") &&
     ["ECONNREFUSED", "ENOTFOUND", "EHOSTUNREACH", "ECONNRESET"].includes(code)
-  ) return true;
+  ) {
+    return true;
+  }
   return false;
 }
