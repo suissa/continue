@@ -110,6 +110,20 @@ const modelsUsesSchema = z
   .string()
   .or(z.enum(commonModelSlugs as [string, ...string[]]));
 
+const capabilityRouteSchema = z.object({
+  model: z.string().min(1),
+  fallbacks: z.array(z.string().min(1)).optional(),
+});
+
+export const capabilityRoutingSchema = z.object({
+  routes: z.record(z.string(), capabilityRouteSchema),
+  fallbackDirection: z.enum(["none", "local-to-cloud", "cloud-to-local", "both"]).default("both"),
+  retryOn: z.array(z.enum(["unavailable", "timeout", "rate-limit", "server-error"]))
+    .default(["unavailable", "timeout", "rate-limit", "server-error"]),
+  cooldownMs: z.number().int().nonnegative().default(30_000),
+});
+export type CapabilityRouting = z.infer<typeof capabilityRoutingSchema>;
+
 export const configYamlSchema = baseConfigYamlSchema.extend({
   models: z
     .array(
