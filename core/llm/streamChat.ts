@@ -119,7 +119,7 @@ export async function* llmStreamChat(
       const route = config.capabilityRouting?.routes.chat;
       const candidates = route
         ? resolveCapabilityCandidates(
-            config.models,
+            Object.values(config.modelsByRole).flat(),
             route,
             config.capabilityRouting?.fallbackDirection ?? "both",
           )
