@@ -97,20 +97,6 @@ const envRecord = z.record(
   z.union([z.string(), z.number(), z.boolean()]),
 );
 
-export const baseConfigYamlSchema = z.object({
-  name: z.string(),
-  version: z.string(),
-  schema: z.string().optional(),
-  metadata: z.record(z.string()).and(commonMetadataSchema.partial()).optional(),
-  env: envRecord.optional(),
-  requestOptions: requestOptionsSchema.optional(),
-  capabilityRouting: capabilityRoutingSchema.optional(),
-});
-
-const modelsUsesSchema = z
-  .string()
-  .or(z.enum(commonModelSlugs as [string, ...string[]]));
-
 const capabilityRouteSchema = z.object({
   model: z.string().min(1),
   fallbacks: z.array(z.string().min(1)).optional(),
@@ -124,6 +110,20 @@ export const capabilityRoutingSchema = z.object({
   cooldownMs: z.number().int().nonnegative().default(30_000),
 });
 export type CapabilityRouting = z.infer<typeof capabilityRoutingSchema>;
+
+export const baseConfigYamlSchema = z.object({
+  name: z.string(),
+  version: z.string(),
+  schema: z.string().optional(),
+  metadata: z.record(z.string()).and(commonMetadataSchema.partial()).optional(),
+  env: envRecord.optional(),
+  requestOptions: requestOptionsSchema.optional(),
+  capabilityRouting: capabilityRoutingSchema.optional(),
+});
+
+const modelsUsesSchema = z
+  .string()
+  .or(z.enum(commonModelSlugs as [string, ...string[]]));
 
 export const configYamlSchema = baseConfigYamlSchema.extend({
   models: z
