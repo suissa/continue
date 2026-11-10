@@ -5,11 +5,7 @@ import {
   resolveCapabilityCandidates,
 } from "./capabilityRouter";
 
-function model(
-  title: string,
-  provider: string,
-  uniqueId = title,
-): ILLM {
+function model(title: string, provider: string, uniqueId = title): ILLM {
   return {
     title,
     model: title,
