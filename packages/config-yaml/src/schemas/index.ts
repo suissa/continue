@@ -104,6 +104,7 @@ export const baseConfigYamlSchema = z.object({
   metadata: z.record(z.string()).and(commonMetadataSchema.partial()).optional(),
   env: envRecord.optional(),
   requestOptions: requestOptionsSchema.optional(),
+  capabilityRouting: capabilityRoutingSchema.optional(),
 });
 
 const modelsUsesSchema = z
