@@ -28,7 +28,10 @@ describe("capability router", () => {
     expect(
       resolveCapabilityCandidates(
         [local, cloud, cloudBackup],
-        { model: "qwen-local", fallbacks: ["openrouter-fast", "openrouter-backup"] },
+        {
+          model: "qwen-local",
+          fallbacks: ["openrouter-fast", "openrouter-backup"],
+        },
       ),
     ).toEqual([local, cloud, cloudBackup]);
   });
@@ -55,10 +58,7 @@ describe("capability router", () => {
 
   it("fails fast when a route references an unconfigured model", () => {
     expect(() =>
-      resolveCapabilityCandidates(
-        [local],
-        { model: "missing-model" },
-      ),
+      resolveCapabilityCandidates([local], { model: "missing-model" }),
     ).toThrow(/unknown model/i);
   });
 
