@@ -104,8 +104,11 @@ const capabilityRouteSchema = z.object({
 
 export const capabilityRoutingSchema = z.object({
   routes: z.record(z.string(), capabilityRouteSchema),
-  fallbackDirection: z.enum(["none", "local-to-cloud", "cloud-to-local", "both"]).default("both"),
-  retryOn: z.array(z.enum(["unavailable", "timeout", "rate-limit", "server-error"]))
+  fallbackDirection: z
+    .enum(["none", "local-to-cloud", "cloud-to-local", "both"])
+    .default("both"),
+  retryOn: z
+    .array(z.enum(["unavailable", "timeout", "rate-limit", "server-error"]))
     .default(["unavailable", "timeout", "rate-limit", "server-error"]),
   cooldownMs: z.number().int().nonnegative().default(30_000),
 });
