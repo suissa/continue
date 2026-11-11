@@ -5,6 +5,10 @@ import { FromCoreProtocol, ToCoreProtocol } from "../protocol";
 import { IMessenger, Message } from "../protocol/messenger";
 
 import { TTS } from "../util/tts";
+import {
+  isRetryableCapabilityError,
+  resolveCapabilityCandidates,
+} from "./capabilityRouter";
 
 export async function* llmStreamChat(
   configHandler: ConfigHandler,
@@ -112,33 +116,64 @@ export async function* llmStreamChat(
 
       return next.value;
     } else {
-      const gen = model.streamChat(
-        messages,
-        abortController.signal,
-        completionOptions,
-        messageOptions,
-      );
-      let next = await gen.next();
-      while (!next.done) {
-        if (abortController.signal.aborted) {
-          next = await gen.return(errorPromptLog);
-          break;
+      const route = config.capabilityRouting?.routes.chat;
+      const candidates = route
+        ? resolveCapabilityCandidates(
+            Object.values(config.modelsByRole).flat(),
+            route,
+            config.capabilityRouting?.fallbackDirection ?? "both",
+          )
+        : [model];
+
+      let lastError: unknown;
+      for (const candidate of candidates) {
+        const gen = candidate.streamChat(
+          messages,
+          abortController.signal,
+          completionOptions,
+          messageOptions,
+        );
+        let emittedChunk = false;
+        try {
+          let next = await gen.next();
+          while (!next.done) {
+            if (abortController.signal.aborted) {
+              next = await gen.return(errorPromptLog);
+              break;
+            }
+
+            emittedChunk = true;
+            yield next.value;
+            next = await gen.next();
+          }
+          if (!next.done) {
+            throw new Error("Will never happen");
+          }
+          if (
+            config.experimental?.readResponseTTS &&
+            "completion" in next.value
+          ) {
+            void TTS.read(next.value?.completion);
+          }
+          return next.value;
+        } catch (error) {
+          lastError = error;
+          // Once output has reached the user, switching models would splice
+          // two unrelated generations together. Only retry before first output.
+          if (
+            emittedChunk ||
+            abortController.signal.aborted ||
+            !isRetryableCapabilityError(
+              error,
+              config.capabilityRouting?.retryOn,
+            )
+          ) {
+            throw error;
+          }
         }
-
-        const chunk = next.value;
-
-        yield chunk;
-        next = await gen.next();
-      }
-      if (config.experimental?.readResponseTTS && "completion" in next.value) {
-        void TTS.read(next.value?.completion);
       }
 
-      if (!next.done) {
-        throw new Error("Will never happen");
-      }
-
-      return next.value;
+      throw lastError ?? new Error("All configured chat models failed");
     }
   } catch (error) {
     // Moved error handling that was here to GUI, keeping try/catch for clean diff

@@ -103,6 +103,44 @@ export const modelDescriptionSchema = z.object({
 });
 export type ModelDescription = z.infer<typeof modelDescriptionSchema>;
 
+/**
+ * A capability route references a model already declared in models by its
+ * exact model identifier. Fallbacks are ordered and must be capability-safe.
+ */
+export const modelCapabilitySchema = z.enum([
+  "autocomplete",
+  "chat",
+  "coding",
+  "planning",
+  "embeddings",
+  "rerank",
+  "image-understanding",
+  "image-generation",
+  "audio-transcription",
+  "audio-generation",
+  "video-understanding",
+  "video-generation",
+]);
+export type ModelCapability = z.infer<typeof modelCapabilitySchema>;
+
+export const capabilityRouteSchema = z.object({
+  model: z.string().min(1),
+  fallbacks: z.array(z.string().min(1)).optional(),
+});
+export type CapabilityRoute = z.infer<typeof capabilityRouteSchema>;
+
+export const capabilityRoutingSchema = z.object({
+  routes: z.record(modelCapabilitySchema, capabilityRouteSchema),
+  fallbackDirection: z
+    .enum(["none", "local-to-cloud", "cloud-to-local", "both"])
+    .default("both"),
+  retryOn: z
+    .array(z.enum(["unavailable", "timeout", "rate-limit", "server-error"]))
+    .default(["unavailable", "timeout", "rate-limit", "server-error"]),
+  cooldownMs: z.number().int().nonnegative().default(30_000),
+});
+export type CapabilityRouting = z.infer<typeof capabilityRoutingSchema>;
+
 export const embeddingsProviderSchema = z.object({
   provider: z.enum([
     "transformers.js",
@@ -223,6 +261,7 @@ export const siteIndexingConfigSchema = z.object({
 export const configJsonSchema = z.object({
   models: z.array(modelDescriptionSchema),
   tabAutocompleteModel: modelDescriptionSchema.optional(),
+  capabilityRouting: capabilityRoutingSchema.optional(),
   embeddingsProvider: embeddingsProviderSchema.optional(),
   reranker: rerankerSchema.optional(),
   analytics: analyticsSchema,

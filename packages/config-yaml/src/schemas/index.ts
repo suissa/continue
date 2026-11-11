@@ -97,6 +97,23 @@ const envRecord = z.record(
   z.union([z.string(), z.number(), z.boolean()]),
 );
 
+const capabilityRouteSchema = z.object({
+  model: z.string().min(1),
+  fallbacks: z.array(z.string().min(1)).optional(),
+});
+
+export const capabilityRoutingSchema = z.object({
+  routes: z.record(z.string(), capabilityRouteSchema),
+  fallbackDirection: z
+    .enum(["none", "local-to-cloud", "cloud-to-local", "both"])
+    .default("both"),
+  retryOn: z
+    .array(z.enum(["unavailable", "timeout", "rate-limit", "server-error"]))
+    .default(["unavailable", "timeout", "rate-limit", "server-error"]),
+  cooldownMs: z.number().int().nonnegative().default(30_000),
+});
+export type CapabilityRouting = z.infer<typeof capabilityRoutingSchema>;
+
 export const baseConfigYamlSchema = z.object({
   name: z.string(),
   version: z.string(),
@@ -104,6 +121,7 @@ export const baseConfigYamlSchema = z.object({
   metadata: z.record(z.string()).and(commonMetadataSchema.partial()).optional(),
   env: envRecord.optional(),
   requestOptions: requestOptionsSchema.optional(),
+  capabilityRouting: capabilityRoutingSchema.optional(),
 });
 
 const modelsUsesSchema = z

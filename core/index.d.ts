@@ -1739,6 +1739,12 @@ export interface JSONModelDescription {
 
 // config.json
 export interface SerializedContinueConfig {
+  capabilityRouting?: {
+    routes: Record<string, { model: string; fallbacks?: string[] }>;
+    fallbackDirection?: "none" | "local-to-cloud" | "cloud-to-local" | "both";
+    retryOn?: ("unavailable" | "timeout" | "rate-limit" | "server-error")[];
+    cooldownMs?: number;
+  };
   env?: string[];
   allowAnonymousTelemetry?: boolean;
   models: JSONModelDescription[];
@@ -1770,6 +1776,12 @@ export type ContinueRcJson = Partial<SerializedContinueConfig> & {
 
 // config.ts - give users simplified interfaces
 export interface Config {
+  capabilityRouting?: {
+    routes: Record<string, { model: string; fallbacks?: string[] }>;
+    fallbackDirection?: "none" | "local-to-cloud" | "cloud-to-local" | "both";
+    retryOn?: ("unavailable" | "timeout" | "rate-limit" | "server-error")[];
+    cooldownMs?: number;
+  };
   /** If set to true, Continue will collect anonymous usage data to improve the product. If set to false, we will collect nothing. Read here to learn more: https://docs.continue.dev/telemetry */
   allowAnonymousTelemetry?: boolean;
   /** Each entry in this array will originally be a JSONModelDescription, the same object from your config.json, but you may add CustomLLMs.
@@ -1818,6 +1830,12 @@ export interface Config {
 
 // in the actual Continue source code
 export interface ContinueConfig {
+  capabilityRouting?: {
+    routes: Record<string, { model: string; fallbacks?: string[] }>;
+    fallbackDirection?: "none" | "local-to-cloud" | "cloud-to-local" | "both";
+    retryOn?: ("unavailable" | "timeout" | "rate-limit" | "server-error")[];
+    cooldownMs?: number;
+  };
   allowAnonymousTelemetry?: boolean;
   // systemMessage?: string;
   completionOptions?: BaseCompletionOptions;
@@ -1841,6 +1859,12 @@ export interface ContinueConfig {
 }
 
 export interface BrowserSerializedContinueConfig {
+  capabilityRouting?: {
+    routes: Record<string, { model: string; fallbacks?: string[] }>;
+    fallbackDirection?: "none" | "local-to-cloud" | "cloud-to-local" | "both";
+    retryOn?: ("unavailable" | "timeout" | "rate-limit" | "server-error")[];
+    cooldownMs?: number;
+  };
   allowAnonymousTelemetry?: boolean;
   // systemMessage?: string;
   completionOptions?: BaseCompletionOptions;
