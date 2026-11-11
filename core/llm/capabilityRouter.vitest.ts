@@ -62,8 +62,12 @@ describe("capability router", () => {
     const unavailable = Object.assign(new Error("offline"), {
       code: "ECONNREFUSED",
     });
-    const rateLimited = Object.assign(new Error("rate limited"), { status: 429 });
-    const invalidRequest = Object.assign(new Error("bad request"), { status: 400 });
+    const rateLimited = Object.assign(new Error("rate limited"), {
+      status: 429,
+    });
+    const invalidRequest = Object.assign(new Error("bad request"), {
+      status: 400,
+    });
 
     expect(isRetryableCapabilityError(unavailable)).toBe(true);
     expect(isRetryableCapabilityError(rateLimited)).toBe(true);
